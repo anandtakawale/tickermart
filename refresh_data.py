@@ -194,7 +194,9 @@ def getBuySellList(stocks, period ="3mo", interval = "1d"):
     return buydf, selldf
 
 if __name__ == "__main__":
-    data = pd.read_csv("./ind_nifty500list.csv", header = 0)
+    folder = os.path.dirname(os.path.abspath(__file__))
+    nifty500filePath = os.path.join(folder, "ind_nifty500list.csv")
+    data = pd.read_csv(nifty500filePath, header = 0)
     nifty500 = list(data["Symbol"])
     buydf, selldf = getBuySellList(nifty500, "3mo", "1d")
     buydf = buydf.fillna(0)
