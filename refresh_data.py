@@ -179,14 +179,14 @@ def getBuySellList(stocks, period ="3mo", interval = "1d"):
                 else:
                     continue
         if pnf["signal"].iloc[-1] == "buy":
-            buydf_temp = {"stock_name":stock[:-3], 
+            buydf_temp = {"stock_name":stock[:-3].replace("&", "_").replace("-", "_"), 
                           "close": df["Close"].iloc[-1],
                           "boxsize":boxSize,
                           "sl": pnf["last1OVal"].iloc[-1] - boxSize
                           }
             buydf = buydf.append(buydf_temp, ignore_index = True)
         elif pnf["signal"].iloc[-1] == "sell":
-            selldf_temp = {"stock_name":stock[:-3], 
+            selldf_temp = {"stock_name":stock[:-3].replace("&", "_").replace("-", "_"), 
                           "close": df["Close"].iloc[-1],
                           "boxsize":boxSize,
                           "sl": pnf["last1XVal"].iloc[-1] + boxSize
