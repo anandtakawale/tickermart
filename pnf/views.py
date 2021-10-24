@@ -23,7 +23,7 @@ def pnf_home(request):
     bdstocks = Breakout_stock.objects.filter(date = data_date, breakout = False)
     prev_date = data_date
     i = 0
-    while (not bostocks) or (not bdstocks):
+    while (not bostocks) and (not bdstocks):
         prev_date = prev_date - timedelta(days = 1)
         bostocks = Breakout_stock.objects.filter(date = prev_date, breakout = True)
         bdstocks = Breakout_stock.objects.filter(date = prev_date, breakout = False)

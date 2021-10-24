@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load pnf_to_underscore %}
 {% block contents %}
 <!-- <div class="container">
     <form action='.' method = 'POST'>{% csrf_token %}
@@ -23,7 +23,7 @@
     <tbody>
       {% for stock in bostocks %}
       <tr>
-        <td><a href="https://www.tradingview.com/chart/?symbol=NSE:{{stock.stock_name}}" 
+        <td><a href="https://www.tradingview.com/chart/?symbol=NSE:{{stock.stock_name|pnf_to_underscore}}" 
           target="_blank" title= "Open NSE:{{stock.stock_name}} chart on tradingview">{{stock.stock_name}}</a></td>
         <td>{{stock.close}}</td>
         <td>{{stock.boxsize}}</td>

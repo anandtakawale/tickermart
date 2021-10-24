@@ -13,7 +13,7 @@
     <a class="navbar-brand" href="{% url 'pnf' %}">
         <img src="{% static 'img/logo2.png' %}" /> Points and Figures
     </a>
-    <form class="form-inline" action="." method = "POST">{{form.as_p}}{% csrf_token %}
+    <form class="form-inline" action="." method = "POST">{{form.as_table}}{% csrf_token %}
     <button class="btn btn-outline-success" type="submit">Submit</button>
     </form>
     </nav>

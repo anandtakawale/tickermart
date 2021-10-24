@@ -16,7 +16,7 @@ import django
 django.setup()
 from pnf.models import Breakout_stock
 
-def getBuySellList(stocks, period ="3mo", interval = "1d"):
+def getBuySellList(stocks, bodate = date.today(), period ="3mo", interval = "1d"):
     buydf = pd.DataFrame(columns = ["stock_name", "close", "boxsize", "sl"])
     selldf = pd.DataFrame(columns = ["stock_name", "close", "boxsize", "sl"])
     for stock in stocks:
@@ -177,14 +177,14 @@ def getBuySellList(stocks, period ="3mo", interval = "1d"):
                                          last1XVal, sl]
                 else:
                     continue
-        if pnf["signal"].iloc[-1] == "buy":
+        if pnf["signal"].iloc[-1] == "buy" and pnf["datetime"].iloc[-1].date() == bodate:
             buydf_temp = {"stock_name":stock[:-3].replace("&", "_").replace("-", "_"), 
                           "close": df["Close"].iloc[-1],
                           "boxsize":boxSize,
                           "sl": pnf["last1OVal"].iloc[-1] - boxSize
                           }
             buydf = buydf.append(buydf_temp, ignore_index = True)
-        elif pnf["signal"].iloc[-1] == "sell":
+        elif pnf["signal"].iloc[-1] == "sell" and pnf["datetime"].iloc[-1].date() == bodate:
             selldf_temp = {"stock_name":stock[:-3].replace("&", "_").replace("-", "_"), 
                           "close": df["Close"].iloc[-1],
                           "boxsize":boxSize,
@@ -194,34 +194,35 @@ def getBuySellList(stocks, period ="3mo", interval = "1d"):
     return buydf, selldf
 
 if __name__ == "__main__":
-    folder = os.path.dirname(os.path.abspath(__file__))
-    nifty500filePath = os.path.join(folder, "ind_nifty500list.csv")
-    data = pd.read_csv(nifty500filePath, header = 0)
-    nifty500 = list(data["Symbol"])
-    buydf, selldf = getBuySellList(nifty500, "3mo", "1d")
-    buydf = buydf.fillna(0)
-    for i in buydf.index:
-        sl = round(float(buydf.loc[i].sl), 2)
-        stock = Breakout_stock.objects.get_or_create(
-            date = date.today(),
-            stock_name = buydf.loc[i].stock_name,
-            close = round(buydf.loc[i].close, 2),
-            boxsize = round(float(buydf.loc[i].boxsize), 2),
-            sl = round(float(sl), 2),
-            breakout = True
-        )[0]
-        stock.save()
-        print("Created ", buydf.loc[i].stock_name, " on ", date.today(), " for buy")
-    selldf = selldf.fillna(0)
-    for i in selldf.index:
-        sl = round(float(selldf.loc[i].sl), 2)
-        stock = Breakout_stock.objects.get_or_create(
-            date = date.today(),
-            stock_name = selldf.loc[i].stock_name,
-            close = round(selldf.loc[i].close, 2),
-            boxsize = round(float(selldf.loc[i].boxsize), 2),
-            sl = sl,
-            breakout = False
-        )[0]
-        stock.save()
-        print("Created ", selldf.loc[i].stock_name, " on ", date.today(), " for sell")
+    if date.today().weekday() != 5 or date.today().weekday() != 6:
+        folder = os.path.dirname(os.path.abspath(__file__))
+        nifty500filePath = os.path.join(folder, "ind_nifty500list.csv")
+        data = pd.read_csv(nifty500filePath, header = 0)
+        nifty500 = list(data["Symbol"])
+        buydf, selldf = getBuySellList(nifty500)
+        buydf = buydf.fillna(0)
+        for i in buydf.index:
+            sl = round(float(buydf.loc[i].sl), 2)
+            stock = Breakout_stock.objects.get_or_create(
+                date = date.today(),
+                stock_name = buydf.loc[i].stock_name,
+                close = round(buydf.loc[i].close, 2),
+                boxsize = round(float(buydf.loc[i].boxsize), 2),
+                sl = sl,
+                breakout = True
+            )[0]
+            stock.save()
+            print("Created ", buydf.loc[i].stock_name, " on ", date.today(), " for buy")
+        selldf = selldf.fillna(0)
+        for i in selldf.index:
+            sl = round(float(selldf.loc[i].sl), 2)
+            stock = Breakout_stock.objects.get_or_create(
+                date = date.today(),
+                stock_name = selldf.loc[i].stock_name,
+                close = round(selldf.loc[i].close, 2),
+                boxsize = round(float(selldf.loc[i].boxsize), 2),
+                sl = sl,
+                breakout = False
+            )[0]
+            stock.save()
+            print("Created ", selldf.loc[i].stock_name, " on ", date.today(), " for sell")
